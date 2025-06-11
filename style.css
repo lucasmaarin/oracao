@@ -318,92 +318,94 @@ body {
  }
 
  .calendar-section {
-     background: white;
-     border-radius: 15px;
-     padding: 30px;
-     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-     color: #2B3F50;
- }
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    color: #2B3F50;
+    max-width: 100%;
+    overflow-x: auto;
+}
 
- .calendar-header {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     margin-bottom: 20px;
-     
- }
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
- .calendar-title {
-     font-size: 1.5em;
-     font-weight: bold;
-     color: #2B3F50;
- }
+.calendar-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2B3F50;
+    flex: 1;
+    min-width: 200px;
+}
 
- .month-nav {
-     display: flex;
-     align-items: center;
-     gap: 15px;
- }
+.month-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
- .nav-button {
-     background: #f8f9fa;
-     border: 1px solid #dee2e6;
-     border-radius: 50%;
-     width: 40px;
-     height: 40px;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     cursor: pointer;
-     transition: all 0.3s ease;
- }
+.nav-button {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
- .nav-button:hover {
-     background: #e9ecef;
-     transform: scale(1.1);
- }
+.nav-button:hover {
+    background: #e9ecef;
+    transform: scale(1.1);
+}
 
- .calendar-grid {
-     display: grid;
-     grid-template-columns: repeat(7, 1fr);
-     gap: 10px;
-     margin-top: 20px;
-     
- }
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
 
- .calendar-day {
-     aspect-ratio: 1;
-     border: 1px solid #e9ecef;
-     border-radius: 8px;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     position: relative;
-     background: white;
-     transition: all 0.3s ease;
-     
- }
+.calendar-day {
+    aspect-ratio: 1;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    transition: all 0.3s ease;
+}
 
- .calendar-day:hover {
-     background: #f8f9fa;
-     transform: scale(1.05);
- }
+.calendar-day:hover {
+    background: #f8f9fa;
+    transform: scale(1.05);
+}
 
- .calendar-day.other-month {
-     opacity: 0.3;
- }
+.calendar-day.other-month {
+    opacity: 0.3;
+}
 
- .calendar-day.today {
-     background: linear-gradient(45deg, #ffd700, #ffed4e);
-     font-weight: bold;
- }
+.calendar-day.today {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    font-weight: bold;
+}
 
- .day-number {
-     font-size: 1.1em;
-     font-weight: bold;
-     margin-bottom: 5px;
- }
+.day-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
 
  .prayer-indicators {
      display: flex;
@@ -752,4 +754,8 @@ body {
          width: 100%;
          max-width: 200px;
      }
+     .calendar-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
  }
+
