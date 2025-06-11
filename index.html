@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acompanhamento de Oração</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Acompanhamento de Oração</h1>
+        </div>
+
+        <div class="main-content">
+            <!-- Seção do Versículo do Dia -->
+            <div class="verse-section">
+                <div class="verse-header">
+                    <div class="verse-title">📖 Versículo do Dia</div>
+
+                </div>
+
+                <div class="verse-content" id="verse-content">
+                    <div class="verse-loading show" id="verse-loading">
+                        <div class="loading-spinner"></div>
+                        <span>Carregando versículo...</span>
+                    </div>
+                    <div class="verse-text" id="verse-text" style="display: none;"></div>
+                    <div class="verse-reference" id="verse-reference" style="display: none;"></div>
+                </div>
+
+                <div class="verse-error" id="verse-error">
+                    <strong>Ops!</strong> Não foi possível carregar o versículo. Verifique sua conexão com a internet.
+                    <br><em>"Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho." - Salmos 119:105</em>
+                </div>
+
+                <div class="verse-actions">
+                    <button class="verse-button" onclick="loadNewVerse()">🔄 Novo Versículo</button>
+                    <button class="verse-button" onclick="shareVerse()">📋 Copiar Versículo</button>
+                </div>
+            </div>
+
+            <div class="persons-container">
+                <div class="person-card sarah">
+                    <div class="person-header">
+                        <div class="person-avatar">S</div>
+                        <div class="person-name">Sarah</div>
+                    </div>
+                    <div class="today-section">
+                        <div class="today-date" id="today-date-sarah"></div>
+                        <button class="prayer-button" id="prayer-btn-sarah" onclick="confirmPrayer('sarah')">
+                            Marcar Oração de Hoje
+                        </button>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-sarah">0</div>
+                            <div class="stat-label">Total de Orações</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="month-sarah">0</div>
+                            <div class="stat-label">Este Mês</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card lucas">
+                    <div class="person-header">
+                        <div class="person-avatar">L</div>
+                        <div class="person-name">Lucas</div>
+                    </div>
+                    <div class="today-section">
+                        <div class="today-date" id="today-date-lucas"></div>
+                        <button class="prayer-button" id="prayer-btn-lucas" onclick="confirmPrayer('lucas')">
+                            Marcar Oração de Hoje
+                        </button>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-lucas">0</div>
+                            <div class="stat-label">Total de Orações</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="month-lucas">0</div>
+                            <div class="stat-label">Este Mês</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <div class="calendar-title">Calendário de Orações</div>
+                    <div class="month-nav">
+                        <button class="nav-button" onclick="changeMonth(-1)">‹</button>
+                        <span id="current-month"></span>
+                        <button class="nav-button" onclick="changeMonth(1)">›</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2>Confirmação de Oração</h2>
+            <p id="modal-message"></p>
+
+            <div class="comment-section">
+                <h3>Compartilhe sua experiência de oração (opcional):</h3>
+                <textarea id="prayer-comment" class="comment-textarea" placeholder="Reflexão, comentário, devocional..."
+                    maxlength="500"></textarea>
+                <div style="text-align: right; margin-top: 5px; font-size: 12px; color: #999;">
+                    <span id="char-count">0</span>/500 caracteres
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-button confirm" onclick="confirmYes()">Sim, orei hoje</button>
+                <button class="modal-button cancel" onclick="confirmNo()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Dia -->
+    <div id="dayDetailModal" class="day-detail-modal">
+        <div class="day-detail-content">
+            <button class="close-button" onclick="closeDayDetail()">&times;</button>
+            <div class="day-detail-header">
+                <div class="day-detail-title">Orações do Dia</div>
+                <div class="day-detail-date" id="detail-date"></div>
+            </div>
+            <div id="day-detail-body">
+                <!-- Conteúdo será gerado dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importações do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-analytics.js";
+        import { getDatabase, ref, set, get, child, push, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAz7EaASw3bGM2KYcN1PFo4QbdzC8_lfdU",
+            authDomain: "eventos-rdr.firebaseapp.com",
+            databaseURL: "https://eventos-rdr-default-rtdb.firebaseio.com",
+            projectId: "eventos-rdr",
+            storageBucket: "eventos-rdr.firebasestorage.app",
+            messagingSenderId: "820714214725",
+            appId: "1:820714214725:web:c48ec5ea89a4281c8c9a2c",
+            measurementId: "G-5S05E5C37J"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        // Dados das orações (cache local)
+        let prayerData = {
+            sarah: new Set(),
+            lucas: new Set()
+        };
+
+        // Dados dos comentários das orações (cache local)
+        let prayerComments = {
+            sarah: {},
+            lucas: {}
+        };
+
+        let currentDate = new Date();
+        let currentPerson = '';
+        let currentVerse = null;
+        let isLoading = false;
+
+        // Função para salvar oração no Firebase Realtime Database
+        async function savePrayerToDatabase(person, date, comment = '') {
+            try {
+                const dateStr = date.toISOString().split('T')[0]; // formato YYYY-MM-DD
+                const prayerKey = `${person}_${dateStr}`;
+
+                const prayerData = {
+                    person: person,
+                    date: dateStr,
+                    timestamp: date.getTime(),
+                    comment: comment,
+                    createdAt: new Date().toISOString()
+                };
+
+                await set(ref(database, `prayers/${prayerKey}`), prayerData);
+
+                console.log('Oração salva no Firebase:', person, dateStr);
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar oração no Firebase:', error);
+                return false;
+            }
+        }
+
+        // Função para carregar orações do Firebase Realtime Database
+        async function loadPrayersFromDatabase() {
+            try {
+                isLoading = true;
+                showLoadingIndicator();
+
+                const prayersRef = ref(database, 'prayers');
+                const snapshot = await get(prayersRef);
+
+                // Limpar dados locais
+                prayerData.sarah.clear();
+                prayerData.lucas.clear();
+                prayerComments.sarah = {};
+                prayerComments.lucas = {};
+
+                if (snapshot.exists()) {
+                    const prayers = snapshot.val();
+
+                    Object.keys(prayers).forEach(key => {
+                        const data = prayers[key];
+                        const person = data.person;
+                        const dateStr = new Date(data.timestamp).toDateString();
+
+                        if (person === 'sarah' || person === 'lucas') {
+                            prayerData[person].add(dateStr);
+
+                            if (data.comment && data.comment.trim()) {
+                                prayerComments[person][dateStr] = data.comment;
+                            }
+                        }
+                    });
+                }
+
+                console.log('Orações carregadas do Firebase');
+                return true;
+            } catch (error) {
+                console.error('Erro ao carregar orações do Firebase:', error);
+                return false;
+            } finally {
+                isLoading = false;
+                hideLoadingIndicator();
+            }
+        }
+
+        // Função para configurar listener em tempo real (opcional)
+        function setupRealtimeListener() {
+            const prayersRef = ref(database, 'prayers');
+
+            onValue(prayersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    console.log('Dados atualizados em tempo real');
+                    // Recarregar dados quando houver mudanças
+                    loadPrayersFromDatabase().then(() => {
+                        updateCalendar();
+                        updateStats();
+                        checkTodayPrayers();
+                    });
+                }
+            });
+        }
+
+        // Mostrar indicador de carregamento
+        function showLoadingIndicator() {
+            const loadingDiv = document.getElementById('loading-indicator') || createLoadingIndicator();
+            loadingDiv.style.display = 'block';
+        }
+
+        // Esconder indicador de carregamento
+        function hideLoadingIndicator() {
+            const loadingDiv = document.getElementById('loading-indicator');
+            if (loadingDiv) {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // Criar indicador de carregamento
+        function createLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        z-index: 10000;
+        display: none;
+        font-family: Arial, sans-serif;
+    `;
+            loadingDiv.innerHTML = '<div>Carregando...</div>';
+            document.body.appendChild(loadingDiv);
+            return loadingDiv;
+        }
+
+        // Inicializar a aplicação
+        async function init() {
+            updateTodayDates();
+
+            // Carregar dados do Firebase
+            await loadPrayersFromDatabase();
+
+            // Configurar listener em tempo real (opcional)
+            // setupRealtimeListener();
+
+            updateCalendar();
+            updateStats();
+            checkTodayPrayers();
+            loadDailyVerse();
+        }
+
+        // Carregar versículo do dia
+        // Substituir a função loadDailyVerse() existente:
+        async function loadDailyVerse() {
+            showVerseLoading();
+
+            try {
+                // Usando API brasileira que retorna versículos em português
+                const response = await fetch('https://www.abibliadigital.com.br/api/verses/nvi/random');
+
+                if (!response.ok) {
+                    throw new Error('Falha na resposta da API');
+                }
+
+                const data = await response.json();
+
+                if (data && data.text && data.book && data.chapter && data.number) {
+                    currentVerse = {
+                        text: data.text,
+                        reference: `${data.book.name} ${data.chapter}:${data.number}`
+                    };
+                    displayVerse(currentVerse);
+                } else {
+                    throw new Error('Formato de dados inválido');
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar versículo:', error);
+                // Fallback para versículo em português
+                currentVerse = {
+                    text: "Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho.",
+                    reference: "Salmos 119:105"
+                };
+                displayVerse(currentVerse);
+            }
+        }
+
+    
+        // Substituir a função loadNewVerse() existente:
+        async function loadNewVerse() {
+            showVerseLoading();
+
+            try {
+                const response = await fetch('https://www.abibliadigital.com.br/api/verses/nvi/random', {
+                    headers: {
+                        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHIiOiJXZWQgSnVuIDExIDIwMjUgMjI6MzU6NDggR01UKzAwMDAuam9zZW1hcmluLm5qQGdtYWlsLmNvbSIsImlhdCI6MTc0OTY4MTM0OH0.2LDgeMpoKx7B0C3163UjkF4ddWAMDF3o9BXa4znKJz0`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Falha na resposta da API');
+                }
+
+                const data = await response.json();
+
+                if (data && data.text && data.book && data.chapter && data.number) {
+                    currentVerse = {
+                        text: data.text,
+                        reference: `${data.book.name} ${data.chapter}:${data.number}`
+                    };
+                    displayVerse(currentVerse);
+                } else {
+                    throw new Error('Formato de dados inválido');
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar novo versículo:', error);
+
+                // Versículo de fallback
+                currentVerse = {
+                    text: "Confie no Senhor de todo o seu coração e não se apoie em seu próprio entendimento.",
+                    reference: "Provérbios 3:5"
+                };
+                displayVerse(currentVerse);
+            }
+        }
+
+
+        // Carregar novo versículo
+
+
+        // Exibir versículo
+        function displayVerse(verse) {
+            hideVerseLoading();
+            hideVerseError();
+
+            const verseText = document.getElementById('verse-text');
+            const verseReference = document.getElementById('verse-reference');
+
+            verseText.textContent = `"${verse.text}"`;
+            verseReference.textContent = `— ${verse.reference}`;
+
+            verseText.style.display = 'block';
+            verseReference.style.display = 'block';
+        }
+
+        // Mostrar loading do versículo
+        function showVerseLoading() {
+            document.getElementById('verse-loading').classList.add('show');
+            document.getElementById('verse-text').style.display = 'none';
+            document.getElementById('verse-reference').style.display = 'none';
+            hideVerseError();
+        }
+
+        // Esconder loading do versículo
+        function hideVerseLoading() {
+            document.getElementById('verse-loading').classList.remove('show');
+        }
+
+        // Mostrar erro do versículo
+        function showVerseError() {
+            hideVerseLoading();
+            document.getElementById('verse-error').classList.add('show');
+            document.getElementById('verse-text').style.display = 'none';
+            document.getElementById('verse-reference').style.display = 'none';
+        }
+
+        // Esconder erro do versículo
+        function hideVerseError() {
+            document.getElementById('verse-error').classList.remove('show');
+        }
+
+        // Compartilhar versículo
+        function shareVerse() {
+            if (!currentVerse) {
+                alert('Nenhum versículo carregado para compartilhar.');
+                return;
+            }
+
+            const verseToShare = `"${currentVerse.text}" — ${currentVerse.reference}`;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(verseToShare).then(() => {
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Copiado!';
+                    button.style.background = 'rgba(40, 167, 69, 0.3)';
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                    fallbackCopyTextToClipboard(verseToShare);
+                });
+            } else {
+                fallbackCopyTextToClipboard(verseToShare);
+            }
+        }
+
+        // Fallback para copiar texto
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                alert('Versículo copiado para a área de transferência!');
+            } catch (err) {
+                alert('Não foi possível copiar o versículo. Por favor, selecione e copie manualmente.');
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        // Atualizar as datas de hoje
+        function updateTodayDates() {
+            const today = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            const todayStr = today.toLocaleDateString('pt-BR', options);
+
+            document.getElementById('today-date-sarah').textContent = `Hoje, ${todayStr}`;
+            document.getElementById('today-date-lucas').textContent = `Hoje, ${todayStr}`;
+        }
+
+        // Confirmar oração
+        function confirmPrayer(person) {
+            if (isLoading) {
+                alert('Aguarde o carregamento dos dados...');
+                return;
+            }
+
+            currentPerson = person;
+            const personName = person === 'sarah' ? 'Sarah' : 'Lucas';
+            document.getElementById('modal-message').textContent =
+                `Você realmente orou hoje?`;
+
+            document.getElementById('prayer-comment').value = '';
+            document.getElementById('char-count').textContent = '0';
+
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+
+        // Confirmar sim - agora salva no Firebase Realtime Database
+        async function confirmYes() {
+            const today = new Date();
+            const todayStr = today.toDateString();
+            const comment = document.getElementById('prayer-comment').value.trim();
+
+            // Mostrar loading
+            const modal = document.getElementById('confirmModal');
+            const originalContent = modal.innerHTML;
+            modal.innerHTML = '<div style="text-align: center; padding: 20px; color: #333;">Salvando oração...</div>';
+
+            try {
+                // Salvar no Firebase
+                const success = await savePrayerToDatabase(currentPerson, today, comment);
+
+                if (success) {
+                    // Atualizar cache local
+                    prayerData[currentPerson].add(todayStr);
+
+                    if (comment) {
+                        prayerComments[currentPerson][todayStr] = comment;
+                    }
+
+                    // Atualizar interface
+                    updateCalendar();
+                    updateStats();
+                    checkTodayPrayers();
+
+                    // Feedback visual
+                    const button = document.getElementById(`prayer-btn-${currentPerson}`);
+                    button.textContent = '✓ Oração Registrada';
+                    button.classList.add('prayed');
+
+                    modal.style.display = 'none';
+                } else {
+                    throw new Error('Falha ao salvar no Firebase');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar oração:', error);
+                alert('Erro ao salvar oração. Tente novamente.');
+            } finally {
+                // Restaurar conteúdo original do modal
+                modal.innerHTML = originalContent;
+            }
+        }
+
+        // Confirmar não
+        function confirmNo() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        // Verificar se já oraram hoje
+        function checkTodayPrayers() {
+            const today = new Date().toDateString();
+
+            ['sarah', 'lucas'].forEach(person => {
+                const button = document.getElementById(`prayer-btn-${person}`);
+                if (prayerData[person].has(today)) {
+                    button.textContent = '✓ Oração Registrada';
+                    button.classList.add('prayed');
+                } else {
+                    button.textContent = 'Marcar Oração de Hoje';
+                    button.classList.remove('prayed');
+                }
+            });
+        }
+
+        // Atualizar estatísticas
+        function updateStats() {
+            ['sarah', 'lucas'].forEach(person => {
+                const total = prayerData[person].size;
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+
+                let monthCount = 0;
+                prayerData[person].forEach(dateStr => {
+                    const date = new Date(dateStr);
+                    if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                        monthCount++;
+                    }
+                });
+
+                document.getElementById(`total-${person}`).textContent = total;
+                document.getElementById(`month-${person}`).textContent = monthCount;
+            });
+        }
+
+        // Mudar mês
+        async function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            updateCalendar();
+        }
+
+        // Atualizar calendário
+        function updateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            document.getElementById('current-month').textContent =
+                `${monthNames[month]} ${year}`;
+
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                grid.appendChild(dayHeader);
+            });
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            const prevMonth = new Date(year, month, 0);
+            const daysInPrevMonth = prevMonth.getDate();
+
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                const dayElement = createDayElement(
+                    daysInPrevMonth - i,
+                    new Date(year, month - 1, daysInPrevMonth - i),
+                    true
+                );
+                grid.appendChild(dayElement);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = createDayElement(
+                    day,
+                    new Date(year, month, day),
+                    false
+                );
+                grid.appendChild(dayElement);
+            }
+
+            const totalCells = 42;
+            const currentCells = startingDayOfWeek + daysInMonth;
+            const remainingCells = totalCells - currentCells;
+
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = createDayElement(
+                    day,
+                    new Date(year, month + 1, day),
+                    true
+                );
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // Criar elemento do dia
+        function createDayElement(dayNumber, date, otherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+
+            if (otherMonth) {
+                dayElement.classList.add('other-month');
+            }
+
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+
+            const dayNumberElement = document.createElement('div');
+            dayNumberElement.className = 'day-number';
+            dayNumberElement.textContent = dayNumber;
+            dayElement.appendChild(dayNumberElement);
+
+            const indicatorsElement = document.createElement('div');
+            indicatorsElement.className = 'prayer-indicators';
+
+            const dateStr = date.toDateString();
+            let hasComments = false;
+
+            if (prayerData.sarah.has(dateStr)) {
+                const sarahDot = document.createElement('div');
+                sarahDot.className = 'prayer-dot sarah';
+                indicatorsElement.appendChild(sarahDot);
+
+                if (prayerComments.sarah[dateStr]) {
+                    hasComments = true;
+                }
+            }
+
+            if (prayerData.lucas.has(dateStr)) {
+                const lucasDot = document.createElement('div');
+                lucasDot.className = 'prayer-dot lucas';
+                indicatorsElement.appendChild(lucasDot);
+
+                if (prayerComments.lucas[dateStr]) {
+                    hasComments = true;
+                }
+            }
+
+            dayElement.appendChild(indicatorsElement);
+
+            if (hasComments) {
+                dayElement.classList.add('has-comment');
+            }
+
+            if (prayerData.sarah.has(dateStr) || prayerData.lucas.has(dateStr)) {
+                dayElement.style.cursor = 'pointer';
+                dayElement.addEventListener('click', () => showDayDetail(date));
+            }
+
+            return dayElement;
+        }
+
+        // Mostrar detalhes do dia
+        function showDayDetail(date) {
+            const dateStr = date.toDateString();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            const formattedDate = date.toLocaleDateString('pt-BR', options);
+
+            document.getElementById('detail-date').textContent = formattedDate;
+
+            const bodyElement = document.getElementById('day-detail-body');
+            bodyElement.innerHTML = '';
+
+            // Sarah
+            const sarahSection = document.createElement('div');
+            sarahSection.className = 'person-prayer-section sarah';
+
+            const sarahHeader = document.createElement('div');
+            sarahHeader.className = 'person-prayer-header';
+
+            const sarahAvatar = document.createElement('div');
+            sarahAvatar.className = 'person-prayer-avatar';
+            sarahAvatar.textContent = 'S';
+
+            const sarahName = document.createElement('div');
+            sarahName.className = 'person-prayer-name';
+            sarahName.textContent = 'Sarah';
+
+            sarahHeader.appendChild(sarahAvatar);
+            sarahHeader.appendChild(sarahName);
+            sarahSection.appendChild(sarahHeader);
+
+            const sarahStatus = document.createElement('div');
+            sarahStatus.className = 'prayer-status';
+
+            if (prayerData.sarah.has(dateStr)) {
+                sarahStatus.classList.add('prayed');
+                sarahStatus.innerHTML = '<span class="prayer-status-icon">✓</span>Orou neste dia';
+
+                if (prayerComments.sarah[dateStr]) {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment-display';
+                    commentDiv.textContent = prayerComments.sarah[dateStr];
+                    sarahSection.appendChild(commentDiv);
+                } else {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment-display empty';
+                    commentDiv.textContent = 'Nenhum comentário compartilhado';
+                    sarahSection.appendChild(commentDiv);
+                }
+            } else {
+                sarahStatus.classList.add('not-prayed');
+                sarahStatus.innerHTML = '<span class="prayer-status-icon">○</span>Não orou neste dia';
+            }
+
+            sarahSection.appendChild(sarahStatus);
+            bodyElement.appendChild(sarahSection);
+
+            // Lucas
+            const lucasSection = document.createElement('div');
+            lucasSection.className = 'person-prayer-section lucas';
+
+            const lucasHeader = document.createElement('div');
+            lucasHeader.className = 'person-prayer-header';
+
+            const lucasAvatar = document.createElement('div');
+            lucasAvatar.className = 'person-prayer-avatar';
+            lucasAvatar.textContent = 'L';
+
+            const lucasName = document.createElement('div');
+            lucasName.className = 'person-prayer-name';
+            lucasName.textContent = 'Lucas';
+
+            lucasHeader.appendChild(lucasAvatar);
+            lucasHeader.appendChild(lucasName);
+            lucasSection.appendChild(lucasHeader);
+
+            const lucasStatus = document.createElement('div');
+            lucasStatus.className = 'prayer-status';
+
+            if (prayerData.lucas.has(dateStr)) {
+                lucasStatus.classList.add('prayed');
+                lucasStatus.innerHTML = '<span class="prayer-status-icon">✓</span>Orou neste dia';
+
+                if (prayerComments.lucas[dateStr]) {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment-display';
+                    commentDiv.textContent = prayerComments.lucas[dateStr];
+                    lucasSection.appendChild(commentDiv);
+                } else {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment-display empty';
+                    commentDiv.textContent = 'Nenhum comentário compartilhado';
+                    lucasSection.appendChild(commentDiv);
+                }
+            } else {
+                lucasStatus.classList.add('not-prayed');
+                lucasStatus.innerHTML = '<span class="prayer-status-icon">○</span>Não orou neste dia';
+            }
+
+            lucasSection.appendChild(lucasStatus);
+            bodyElement.appendChild(lucasSection);
+
+            document.getElementById('dayDetailModal').style.display = 'block';
+        }
+
+        // Fechar detalhes do dia
+        function closeDayDetail() {
+            document.getElementById('dayDetailModal').style.display = 'none';
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function (event) {
+            const confirmModal = document.getElementById('confirmModal');
+            const dayDetailModal = document.getElementById('dayDetailModal');
+
+            if (event.target === confirmModal) {
+                confirmModal.style.display = 'none';
+            }
+
+            if (event.target === dayDetailModal) {
+                dayDetailModal.style.display = 'none';
+            }
+        }
+
+        // Contador de caracteres para o comentário
+        document.addEventListener('DOMContentLoaded', function () {
+            const commentTextarea = document.getElementById('prayer-comment');
+            const charCount = document.getElementById('char-count');
+
+            if (commentTextarea && charCount) {
+                commentTextarea.addEventListener('input', function () {
+                    charCount.textContent = this.value.length;
+                });
+            }
+        });
+
+        // Tornar funções globais para serem acessíveis no HTML
+        window.confirmPrayer = confirmPrayer;
+        window.confirmYes = confirmYes;
+        window.confirmNo = confirmNo;
+        window.changeMonth = changeMonth;
+        window.closeDayDetail = closeDayDetail;
+        window.shareVerse = shareVerse;
+        window.loadNewVerse = loadNewVerse;
+
+        // Inicializar quando a página carrega
+        window.onload = init;
+    </script>
+</body>
+
+</html>

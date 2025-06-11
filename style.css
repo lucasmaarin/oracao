@@ -1,0 +1,755 @@
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: rgb(0, 0, 0);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+     background: #2B3F50;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    color: #F0F0F0; /* Texto claro para legibilidade */
+}
+
+ .header {
+     background: linear-gradient(135deg, #ada2cf 0%, #c0bcca 100%);
+     color: #2B3F50;
+     padding: 30px;
+     text-align: center;
+ }
+
+ .header h1 {
+     font-size: 2.5em;
+     margin-bottom: 10px;
+     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+ }
+
+ .header p {
+     font-size: 1.2em;
+     opacity: 0.9;
+ }
+
+ .main-content {
+     padding: 40px;
+ }
+
+ .verse-section {
+     background: linear-gradient(135deg, #ada2cf 0%, #c0bcca 100%);
+     border-radius: 20px;
+     padding: 30px;
+     margin-bottom: 40px;
+     color: #2B3F50;
+     /* Novo: contraste mais forte */
+     text-align: center;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+     position: relative;
+     overflow: hidden;
+ }
+
+
+
+
+ .verse-section::before {
+     content: '';
+     position: absolute;
+     top: -50%;
+     left: -50%;
+     width: 200%;
+     height: 200%;
+     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+     animation: shimmer 8s infinite;
+ }
+
+ /*   @keyframes shimmer {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(180deg);
+            }
+        } */
+
+ .verse-header {
+     position: relative;
+     z-index: 1;
+ }
+
+ .verse-title {
+     font-size: 1.8em;
+     font-weight: bold;
+     margin-bottom: 10px;
+     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+ }
+
+ .verse-subtitle {
+     font-size: 1em;
+     opacity: 0.9;
+     margin-bottom: 25px;
+ }
+
+ .verse-content {
+     position: relative;
+     z-index: 1;
+     background: rgba(255, 255, 255, 0.1);
+     backdrop-filter: blur(10px);
+     border-radius: 15px;
+     padding: 25px;
+     margin-bottom: 20px;
+     border: 1px solid rgba(255, 255, 255, 0.2);
+ }
+
+ .verse-text {
+     font-size: 1.3em;
+     line-height: 1.6;
+     font-style: italic;
+     margin-bottom: 15px;
+     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+ }
+
+ .verse-reference {
+     font-size: 1.1em;
+     font-weight: bold;
+     opacity: 0.9;
+ }
+
+ .verse-actions {
+     position: relative;
+     z-index: 1;
+     display: flex;
+     gap: 15px;
+     justify-content: center;
+     flex-wrap: wrap;
+ }
+
+ .verse-button {
+     background: rgba(255, 255, 255, 0.2);
+     color: #2B3F50;
+     border: 2px solid rgba(255, 255, 255, 0.3);
+     padding: 10px 20px;
+     border-radius: 25px;
+     font-size: 0.9em;
+     font-weight: bold;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     backdrop-filter: blur(10px);
+ }
+
+ .verse-button:hover {
+     background: rgba(255, 255, 255, 0.3);
+     border-color: rgba(255, 255, 255, 0.5);
+     transform: translateY(-2px);
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+ }
+
+ .verse-loading {
+     display: none;
+     align-items: center;
+     justify-content: center;
+     gap: 10px;
+     font-size: 1.1em;
+     color: rgba(255, 255, 255, 0.8);
+ }
+
+ .verse-loading.show {
+     display: flex;
+ }
+
+ .loading-spinner {
+     width: 20px;
+     height: 20px;
+     border: 2px solid rgba(255, 255, 255, 0.3);
+     border-top: 2px solid white;
+     border-radius: 50%;
+     animation: spin 1s linear infinite;
+ }
+
+ @keyframes spin {
+     0% {
+         transform: rotate(0deg);
+     }
+
+     100% {
+         transform: rotate(360deg);
+     }
+ }
+
+ .verse-error {
+     display: none;
+     background: rgba(255, 0, 0, 0.1);
+     border: 1px solid rgba(255, 0, 0, 0.3);
+     border-radius: 10px;
+     padding: 15px;
+     margin-top: 15px;
+     color: #ffcccb;
+     font-size: 0.9em;
+ }
+
+ .verse-error.show {
+     display: block;
+ }
+
+ .persons-container {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 40px;
+     margin-bottom: 40px;
+ }
+
+ .person-card {
+     background: white;
+     border-radius: 15px;
+     padding: 30px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+ }
+
+ .person-card:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+ }
+
+ .person-card.sarah {
+     border-left: 5px solid #E6E0F8;
+ }
+
+ .person-card.lucas {
+     border-left: 5px solid #020a52;
+ }
+
+ .person-header {
+     display: flex;
+     align-items: center;
+     margin-bottom: 20px;
+ }
+
+ .person-avatar {
+     width: 60px;
+     height: 60px;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 24px;
+     font-weight: bold;
+     color: white;
+     margin-right: 15px;
+ }
+
+ .sarah .person-avatar {
+     background: #E6E0F8;
+ }
+
+ .lucas .person-avatar {
+     background: #020a52;
+ }
+
+ .person-name {
+     font-size: 1.8em;
+     font-weight: bold;
+     color: #333;
+ }
+
+ .today-section {
+     margin-bottom: 25px;
+ }
+
+ .today-date {
+     font-size: 1.2em;
+     color: #2B3F50;
+     margin-bottom: 15px;
+ }
+
+ .prayer-button {
+     background: linear-gradient(135deg, #ada2cf 0%, #c0bcca 100%);
+     color: white;
+     border: none;
+     padding: 15px 30px;
+     border-radius: 50px;
+     font-size: 1.1em;
+     font-weight: bold;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+ }
+
+ .prayer-button:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+ }
+
+ .prayer-button.prayed {
+     background: linear-gradient(45deg, #28a745, #20c997);
+ }
+
+ .stats {
+     margin-top: 20px;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+
+ .stat-item {
+     text-align: center;
+ }
+
+ .stat-number {
+     font-size: 2em;
+     font-weight: bold;
+     color: #333;
+ }
+
+ .stat-label {
+     font-size: 0.9em;
+     color: #2B3F50;
+     margin-top: 5px;
+ }
+
+ .calendar-section {
+     background: white;
+     border-radius: 15px;
+     padding: 30px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+     color: #2B3F50;
+ }
+
+ .calendar-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 20px;
+     
+ }
+
+ .calendar-title {
+     font-size: 1.5em;
+     font-weight: bold;
+     color: #2B3F50;
+ }
+
+ .month-nav {
+     display: flex;
+     align-items: center;
+     gap: 15px;
+ }
+
+ .nav-button {
+     background: #f8f9fa;
+     border: 1px solid #dee2e6;
+     border-radius: 50%;
+     width: 40px;
+     height: 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     transition: all 0.3s ease;
+ }
+
+ .nav-button:hover {
+     background: #e9ecef;
+     transform: scale(1.1);
+ }
+
+ .calendar-grid {
+     display: grid;
+     grid-template-columns: repeat(7, 1fr);
+     gap: 10px;
+     margin-top: 20px;
+     
+ }
+
+ .calendar-day {
+     aspect-ratio: 1;
+     border: 1px solid #e9ecef;
+     border-radius: 8px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     position: relative;
+     background: white;
+     transition: all 0.3s ease;
+     
+ }
+
+ .calendar-day:hover {
+     background: #f8f9fa;
+     transform: scale(1.05);
+ }
+
+ .calendar-day.other-month {
+     opacity: 0.3;
+ }
+
+ .calendar-day.today {
+     background: linear-gradient(45deg, #ffd700, #ffed4e);
+     font-weight: bold;
+ }
+
+ .day-number {
+     font-size: 1.1em;
+     font-weight: bold;
+     margin-bottom: 5px;
+ }
+
+ .prayer-indicators {
+     display: flex;
+     gap: 3px;
+ }
+
+ .prayer-dot {
+     width: 8px;
+     height: 8px;
+     border-radius: 50%;
+ }
+
+ .prayer-dot.sarah {
+     background: #d4c6ff;
+ }
+
+ .prayer-dot.lucas {
+     background: #020a52;
+ }
+
+ .day-header {
+     font-weight: bold;
+     color: #2B3F50;
+     text-align: center;
+     padding: 10px;
+     background: #f8f9fa;
+ }
+
+ /* Modal */
+ .modal {
+     display: none;
+     position: fixed;
+     z-index: 1000;
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.5);
+     backdrop-filter: blur(5px);
+ }
+
+ .modal-content {
+     background-color: white;
+     margin: 5% auto;
+     padding: 30px;
+     border-radius: 20px;
+     width: 90%;
+     max-width: 600px;
+     text-align: center;
+     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+     animation: modalSlide 0.3s ease;
+     max-height: 80vh;
+     overflow-y: auto;
+ }
+
+ @keyframes modalSlide {
+     from {
+         opacity: 0;
+         transform: translateY(-50px);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateY(0);
+     }
+ }
+
+ .modal h2 {
+     color: #333;
+     margin-bottom: 20px;
+     font-size: 1.5em;
+ }
+
+ .modal p {
+     color: #2B3F50;
+     margin-bottom: 30px;
+     font-size: 1.1em;
+ }
+
+ .modal-buttons {
+     display: flex;
+     gap: 15px;
+     justify-content: center;
+ }
+
+ .modal-button {
+     padding: 12px 30px;
+     border: none;
+     border-radius: 25px;
+     font-size: 1em;
+     font-weight: bold;
+     cursor: pointer;
+     transition: all 0.3s ease;
+ }
+
+ .modal-button.confirm {
+     background: linear-gradient(45deg, #28a745, #20c997);
+     color: white;
+ }
+
+ .modal-button.cancel {
+     background: #f8f9fa;
+     color: #2B3F50;
+     border: 1px solid #dee2e6;
+ }
+
+ .modal-button:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+ }
+
+ .comment-section {
+     margin-top: 25px;
+     text-align: left;
+ }
+
+ .comment-section h3 {
+     color: #333;
+     margin-bottom: 15px;
+     font-size: 1.2em;
+ }
+
+ .comment-textarea {
+     width: 100%;
+     min-height: 120px;
+     padding: 15px;
+     border: 2px solid #e9ecef;
+     border-radius: 10px;
+     font-family: inherit;
+     font-size: 14px;
+     resize: vertical;
+     transition: border-color 0.3s ease;
+ }
+
+ .comment-textarea:focus {
+     outline: none;
+     border-color: #667eea;
+ }
+
+ .comment-textarea::placeholder {
+     color: #999;
+ }
+
+ .comment-display {
+     background: #f8f9fa;
+     border: 1px solid #e9ecef;
+     border-radius: 10px;
+     padding: 15px;
+     margin-top: 15px;
+     text-align: left;
+     font-size: 14px;
+     line-height: 1.5;
+     color: #333;
+     white-space: pre-wrap;
+     max-height: 200px;
+     overflow-y: auto;
+ }
+
+ .comment-display.empty {
+     color: #999;
+     font-style: italic;
+ }
+
+ .calendar-day.has-comment {
+     position: relative;
+ }
+
+ .calendar-day.has-comment::after {
+     content: '💬';
+     position: absolute;
+     top: 2px;
+     right: 2px;
+     font-size: 10px;
+ }
+
+ .day-detail-modal {
+     display: none;
+     position: fixed;
+     z-index: 1001;
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.5);
+     backdrop-filter: blur(5px);
+ }
+
+ .day-detail-content {
+     background-color: white;
+     margin: 5% auto;
+     padding: 30px;
+     border-radius: 20px;
+     width: 90%;
+     max-width: 700px;
+     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+     animation: modalSlide 0.3s ease;
+     max-height: 80vh;
+     overflow-y: auto;
+ }
+
+ .day-detail-header {
+     text-align: center;
+     margin-bottom: 30px;
+     border-bottom: 2px solid #f8f9fa;
+     padding-bottom: 20px;
+ }
+
+ .day-detail-title {
+     font-size: 1.5em;
+     color: #333;
+     margin-bottom: 10px;
+ }
+
+ .day-detail-date {
+     color: #2B3F50;
+     font-size: 1.1em;
+ }
+
+ .person-prayer-section {
+     margin-bottom: 30px;
+     padding: 20px;
+     border-radius: 15px;
+     background: white;
+     border: 2px solid #f8f9fa;
+ }
+
+ .person-prayer-section.sarah {
+     border-color: #d4c6ff;
+ }
+
+ .person-prayer-section.lucas {
+     border-color: #020a52;
+ }
+
+ .person-prayer-header {
+     display: flex;
+     align-items: center;
+     margin-bottom: 15px;
+ }
+
+ .person-prayer-avatar {
+     width: 40px;
+     height: 40px;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 16px;
+     font-weight: bold;
+     color: white;
+     margin-right: 10px;
+ }
+
+ .person-prayer-section.sarah .person-prayer-avatar {
+     background: #d4c6ff
+ }
+
+ .person-prayer-section.lucas .person-prayer-avatar {
+     background: #020a52;
+ }
+
+ .person-prayer-name {
+     font-size: 1.2em;
+     font-weight: bold;
+     color: #333;
+ }
+
+ .prayer-status {
+     display: flex;
+     align-items: center;
+     margin-bottom: 15px;
+ }
+
+ .prayer-status-icon {
+     margin-right: 8px;
+     font-size: 1.2em;
+ }
+
+ .prayer-status.prayed {
+     color: #28a745;
+ }
+
+ .prayer-status.not-prayed {
+     color: #2B3F50;
+ }
+
+ .close-button {
+     background: #f8f9fa;
+     border: 1px solid #dee2e6;
+     border-radius: 50%;
+     width: 35px;
+     height: 35px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     position: absolute;
+     top: 15px;
+     right: 15px;
+     font-size: 18px;
+     color: #2B3F50;
+     transition: all 0.3s ease;
+ }
+
+ .close-button:hover {
+     background: #e9ecef;
+     transform: scale(1.1);
+ }
+
+ @media (max-width: 768px) {
+     .persons-container {
+         grid-template-columns: 1fr;
+         gap: 20px;
+     }
+
+     .main-content {
+         padding: 20px;
+     }
+
+     .header h1 {
+         font-size: 2em;
+     }
+
+     .calendar-grid {
+         gap: 5px;
+     }
+
+     .verse-section {
+         padding: 20px;
+     }
+
+     .verse-title {
+         font-size: 1.5em;
+     }
+
+     .verse-text {
+         font-size: 1.1em;
+     }
+
+     .verse-actions {
+         flex-direction: column;
+         align-items: center;
+     }
+
+     .verse-button {
+         width: 100%;
+         max-width: 200px;
+     }
+ }
