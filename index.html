@@ -12,12 +12,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Acompanhamento de Oração</h1>
+            <h1>Orações do mês</h1>
         </div>
 
         <div class="main-content">
             <!-- Seção do Versículo do Dia -->
-            <div class="verse-section">
+            <!-- <div class="verse-section">
                 <div class="verse-header">
                     <div class="verse-title">📖 Versículo do Dia</div>
 
@@ -41,7 +41,7 @@
                     <button class="verse-button" onclick="loadNewVerse()">🔄 Novo Versículo</button>
                     <button class="verse-button" onclick="shareVerse()">📋 Copiar Versículo</button>
                 </div>
-            </div>
+            </div> -->
 
             <div class="persons-container">
                 <div class="person-card sarah">
@@ -634,13 +634,13 @@
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
 
-            const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+          /*   const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             dayHeaders.forEach(day => {
                 const dayHeader = document.createElement('div');
                 dayHeader.className = 'day-header';
                 dayHeader.textContent = day;
                 grid.appendChild(dayHeader);
-            });
+            }); */
 
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreador de Orações</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .persons-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .person-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .person-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .person-card.sarah {
+            border-color: #ff6b6b;
+        }
+
+        .person-card.lucas {
+            border-color: #4ecdc4;
+        }
+
+        .person-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .person-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .sarah .person-avatar {
+            background: #ff6b6b;
+        }
+
+        .lucas .person-avatar {
+            background: #4ecdc4;
+        }
+
+        .person-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .calendar-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .calendar-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: #5a6fd8;
+            transform: scale(1.1);
+        }
+
+        .current-month {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .day-number {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .prayer-indicators {
+            display: flex;
+            gap: 3px;
+        }
+
+        .prayer-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .prayer-dot.sarah {
+            background: #ff6b6b;
+        }
+
+        .prayer-dot.lucas {
+            background: #4ecdc4;
+        }
+
+        .calendar-day.has-prayers {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .date-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .person-options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .person-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .person-option:hover {
+            background: #f8f9fa;
+        }
+
+        .person-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .person-option.sarah.selected {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .person-option.lucas.selected {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .option-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .sarah .option-avatar {
+            background: #ff6b6b;
+        }
+
+        .lucas .option-avatar {
+            background: #4ecdc4;
+        }
+
+        .option-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .option-status {
+            margin-left: auto;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button.save {
+            background: #28a745;
+            color: white;
+        }
+
+        .modal-button.save:hover {
+            background: #218838;
+        }
+
+        .modal-button.cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-button.cancel:hover {
+            background: #5a6268;
+        }
+
+        .modal-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .persons-section {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🙏 Rastreador de Orações</h1>
+            <p>Acompanhe sua jornada espiritual diária</p>
+        </div>
+
+        <div class="persons-section">
+            <div class="person-card sarah">
+                <div class="person-header">
+                    <div class="person-avatar">S</div>
+                    <div class="person-name">Sarah</div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-sarah">0</div>
+                        <div class="stat-label">Total de Orações</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="month-sarah">0</div>
+                        <div class="stat-label">Este Mês</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="person-card lucas">
+                <div class="person-header">
+                    <div class="person-avatar">L</div>
+                    <div class="person-name">Lucas</div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-lucas">0</div>
+                        <div class="stat-label">Total de Orações</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="month-lucas">0</div>
+                        <div class="stat-label">Este Mês</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="calendar-section">
+            <div class="calendar-header">
+                <div class="calendar-title">📅 Calendário de Orações</div>
+                <div class="month-nav">
+                    <button class="nav-button" onclick="changeMonth(-1)">‹</button>
+                    <span class="current-month" id="current-month"></span>
+                    <button class="nav-button" onclick="changeMonth(1)">›</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Calendar will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for marking prayers -->
+    <div id="prayerModal" class="modal">
+        <div class="modal-content">
+            <h2>Marcar Oração</h2>
+            <div class="date-display" id="modal-date"></div>
+            
+            <div class="person-options">
+                <div class="person-option sarah" onclick="togglePerson('sarah')">
+                    <div class="option-avatar">S</div>
+                    <div class="option-name">Sarah</div>
+                    <div class="option-status" id="sarah-status"></div>
+                </div>
+                <div class="person-option lucas" onclick="togglePerson('lucas')">
+                    <div class="option-avatar">L</div>
+                    <div class="option-name">Lucas</div>
+                    <div class="option-status" id="lucas-status"></div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-button save" onclick="savePrayers()">Salvar</button>
+                <button class="modal-button cancel" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+         // Importações do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAz7EaASw3bGM2KYcN1PFo4QbdzC8_lfdU",
+            authDomain: "eventos-rdr.firebaseapp.com",
+            databaseURL: "https://eventos-rdr-default-rtdb.firebaseio.com",
+            projectId: "eventos-rdr",
+            storageBucket: "eventos-rdr.firebasestorage.app",
+            messagingSenderId: "820714214725",
+            appId: "1:820714214725:web:c48ec5ea89a4281c8c9a2c",
+            measurementId: "G-5S05E5C37J"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Data storage
+        let prayerData = {
+            sarah: new Set(),
+            lucas: new Set()
+        };
+
+        let currentDate = new Date();
+        let selectedDate = null;
+        let originalPrayerState = {}; // Para rastrear o estado original quando o modal abre
+        let isLoading = false;
+
+        // Função para formatar data no padrão YYYY-MM-DD
+        function formatDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // Salvar oração no Firebase
+        async function savePrayerToDatabase(person, date) {
+            try {
+                const dateStr = formatDateKey(date);
+                const prayerKey = `${person}_${dateStr}`;
+
+                const prayerData = {
+                    person: person,
+                    date: dateStr,
+                    timestamp: date.getTime(),
+                    createdAt: new Date().toISOString()
+                };
+
+                await set(ref(database, `prayers/${prayerKey}`), prayerData);
+                console.log('Oração salva no Firebase:', person, dateStr);
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar oração no Firebase:', error);
+                return false;
+            }
+        }
+
+        // Remover oração do Firebase
+        async function removePrayerFromDatabase(person, date) {
+            try {
+                const dateStr = formatDateKey(date);
+                const prayerKey = `${person}_${dateStr}`;
+
+                await remove(ref(database, `prayers/${prayerKey}`));
+                console.log('Oração removida do Firebase:', person, dateStr);
+                return true;
+            } catch (error) {
+                console.error('Erro ao remover oração do Firebase:', error);
+                return false;
+            }
+        }
+
+        // Carregar orações do Firebase
+        async function loadPrayersFromDatabase() {
+            try {
+                isLoading = true;
+                showLoadingIndicator();
+
+                const prayersRef = ref(database, 'prayers');
+                const snapshot = await get(prayersRef);
+
+                // Limpar dados locais
+                prayerData.sarah.clear();
+                prayerData.lucas.clear();
+
+                if (snapshot.exists()) {
+                    const prayers = snapshot.val();
+
+                    Object.keys(prayers).forEach(key => {
+                        const data = prayers[key];
+                        const person = data.person;
+                        const date = new Date(data.date + 'T00:00:00');
+                        const dateStr = date.toDateString();
+
+                        if (person === 'sarah' || person === 'lucas') {
+                            prayerData[person].add(dateStr);
+                        }
+                    });
+                }
+
+                console.log('Orações carregadas do Firebase');
+                return true;
+            } catch (error) {
+                console.error('Erro ao carregar orações do Firebase:', error);
+                return false;
+            } finally {
+                isLoading = false;
+                hideLoadingIndicator();
+            }
+        }
+
+        // Mostrar indicador de carregamento
+        function showLoadingIndicator() {
+            const loadingDiv = document.getElementById('loading-indicator') || createLoadingIndicator();
+            loadingDiv.style.display = 'block';
+        }
+
+        // Esconder indicador de carregamento
+        function hideLoadingIndicator() {
+            const loadingDiv = document.getElementById('loading-indicator');
+            if (loadingDiv) {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // Criar indicador de carregamento
+        function createLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                z-index: 10000;
+                display: none;
+                font-family: Arial, sans-serif;
+                text-align: center;
+            `;
+            loadingDiv.innerHTML = '<div>Carregando dados...</div>';
+            document.body.appendChild(loadingDiv);
+            return loadingDiv;
+        }
+
+        // Initialize the app
+        async function init() {
+            await loadPrayersFromDatabase();
+            updateCalendar();
+            updateStats();
+        }
+
+        // Update calendar
+        function updateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            document.getElementById('current-month').textContent = `${monthNames[month]} ${year}`;
+
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            // Day headers
+            const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                grid.appendChild(dayHeader);
+            });
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            // Previous month days
+            const prevMonth = new Date(year, month, 0);
+            const daysInPrevMonth = prevMonth.getDate();
+
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                const dayElement = createDayElement(
+                    daysInPrevMonth - i,
+                    new Date(year, month - 1, daysInPrevMonth - i),
+                    true
+                );
+                grid.appendChild(dayElement);
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = createDayElement(
+                    day,
+                    new Date(year, month, day),
+                    false
+                );
+                grid.appendChild(dayElement);
+            }
+
+            // Next month days
+            const totalCells = 42;
+            const currentCells = startingDayOfWeek + daysInMonth;
+            const remainingCells = totalCells - currentCells;
+
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = createDayElement(
+                    day,
+                    new Date(year, month + 1, day),
+                    true
+                );
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // Create day element
+        function createDayElement(dayNumber, date, otherMonth) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+
+            if (otherMonth) {
+                dayElement.classList.add('other-month');
+            }
+
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+
+            const dayNumberElement = document.createElement('div');
+            dayNumberElement.className = 'day-number';
+            dayNumberElement.textContent = dayNumber;
+            dayElement.appendChild(dayNumberElement);
+
+            const indicatorsElement = document.createElement('div');
+            indicatorsElement.className = 'prayer-indicators';
+
+            const dateStr = date.toDateString();
+            let hasPrayers = false;
+
+            if (prayerData.sarah.has(dateStr)) {
+                const sarahDot = document.createElement('div');
+                sarahDot.className = 'prayer-dot sarah';
+                indicatorsElement.appendChild(sarahDot);
+                hasPrayers = true;
+            }
+
+            if (prayerData.lucas.has(dateStr)) {
+                const lucasDot = document.createElement('div');
+                lucasDot.className = 'prayer-dot lucas';
+                indicatorsElement.appendChild(lucasDot);
+                hasPrayers = true;
+            }
+
+            dayElement.appendChild(indicatorsElement);
+
+            if (hasPrayers) {
+                dayElement.classList.add('has-prayers');
+            }
+
+            // Add click event
+            dayElement.addEventListener('click', () => openModal(date));
+
+            return dayElement;
+        }
+
+        // Open modal
+        function openModal(date) {
+            selectedDate = date;
+            
+            // Salvar estado original para comparação
+            const dateStr = selectedDate.toDateString();
+            originalPrayerState = {
+                sarah: prayerData.sarah.has(dateStr),
+                lucas: prayerData.lucas.has(dateStr)
+            };
+
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            const formattedDate = date.toLocaleDateString('pt-BR', options);
+            document.getElementById('modal-date').textContent = formattedDate;
+
+            updateModalStatus();
+            document.getElementById('prayerModal').style.display = 'block';
+        }
+
+        // Update modal status
+        function updateModalStatus() {
+            if (!selectedDate) return;
+
+            const dateStr = selectedDate.toDateString();
+
+            ['sarah', 'lucas'].forEach(person => {
+                const personOption = document.querySelector(`.person-option.${person}`);
+                const statusElement = document.getElementById(`${person}-status`);
+
+                if (prayerData[person].has(dateStr)) {
+                    personOption.classList.add('selected');
+                    statusElement.textContent = '✓ Orou';
+                } else {
+                    personOption.classList.remove('selected');
+                    statusElement.textContent = '';
+                }
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            ['sarah', 'lucas'].forEach(person => {
+                const total = prayerData[person].size;
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+
+                let monthCount = 0;
+                prayerData[person].forEach(dateStr => {
+                    const date = new Date(dateStr);
+                    if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                        monthCount++;
+                    }
+                });
+
+                document.getElementById(`total-${person}`).textContent = total;
+                document.getElementById(`month-${person}`).textContent = monthCount;
+            });
+        }
+
+        // Tornar funções globais
+        window.togglePerson = function(person) {
+            if (isLoading) {
+                alert('Aguarde o carregamento dos dados...');
+                return;
+            }
+
+            const dateStr = selectedDate.toDateString();
+            
+            if (prayerData[person].has(dateStr)) {
+                // Remove prayer
+                prayerData[person].delete(dateStr);
+            } else {
+                // Add prayer
+                prayerData[person].add(dateStr);
+            }
+
+            updateModalStatus();
+        };
+
+        // Close modal
+        window.closeModal = function() {
+            // Restaurar estado original se houver mudanças não salvas
+            if (selectedDate) {
+                const dateStr = selectedDate.toDateString();
+                
+                // Restaurar Sarah
+                if (originalPrayerState.sarah) {
+                    prayerData.sarah.add(dateStr);
+                } else {
+                    prayerData.sarah.delete(dateStr);
+                }
+                
+                // Restaurar Lucas
+                if (originalPrayerState.lucas) {
+                    prayerData.lucas.add(dateStr);
+                } else {
+                    prayerData.lucas.delete(dateStr);
+                }
+            }
+            
+            document.getElementById('prayerModal').style.display = 'none';
+            selectedDate = null;
+            originalPrayerState = {};
+        };
+
+        // Save prayers
+        window.savePrayers = async function() {
+            if (isLoading) {
+                alert('Aguarde o carregamento dos dados...');
+                return;
+            }
+
+            const saveButton = document.querySelector('.modal-button.save');
+            const originalText = saveButton.textContent;
+            saveButton.textContent = 'Salvando...';
+            saveButton.disabled = true;
+
+            try {
+                const dateStr = selectedDate.toDateString();
+                const promises = [];
+
+                // Verificar mudanças para Sarah
+                const sarahCurrentState = prayerData.sarah.has(dateStr);
+                const sarahOriginalState = originalPrayerState.sarah;
+
+                if (sarahCurrentState !== sarahOriginalState) {
+                    if (sarahCurrentState) {
+                        // Adicionar oração
+                        promises.push(savePrayerToDatabase('sarah', selectedDate));
+                    } else {
+                        // Remover oração
+                        promises.push(removePrayerFromDatabase('sarah', selectedDate));
+                    }
+                }
+
+                // Verificar mudanças para Lucas
+                const lucasCurrentState = prayerData.lucas.has(dateStr);
+                const lucasOriginalState = originalPrayerState.lucas;
+
+                if (lucasCurrentState !== lucasOriginalState) {
+                    if (lucasCurrentState) {
+                        // Adicionar oração
+                        promises.push(savePrayerToDatabase('lucas', selectedDate));
+                    } else {
+                        // Remover oração
+                        promises.push(removePrayerFromDatabase('lucas', selectedDate));
+                    }
+                }
+
+                // Aguardar todas as mudanças
+                if (promises.length > 0) {
+                    await Promise.all(promises);
+                    console.log('Mudanças salvas com sucesso');
+                } else {
+                    console.log('Nenhuma mudança para salvar');
+                }
+
+                // Recarregar dados do Firebase
+                await loadPrayersFromDatabase();
+                updateCalendar();
+                updateStats();
+                
+                // Fechar modal
+                document.getElementById('prayerModal').style.display = 'none';
+                selectedDate = null;
+                originalPrayerState = {};
+
+            } catch (error) {
+                console.error('Erro ao salvar orações:', error);
+                alert('Erro ao salvar orações. Tente novamente.');
+            } finally {
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
+            }
+        };
+
+        // Change month
+        window.changeMonth = function(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            updateCalendar();
+        };
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('prayerModal');
+            if (event.target === modal) {
+                window.closeModal();
+            }
+        })
+        // Initialize when DOM is loaded - usando DOMContentLoaded em vez de window.onload
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            // Se o DOM já está carregado, executa imediatamente
+            init();
+        }
+    </script>
+</body>
+</html>
