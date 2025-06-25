@@ -217,11 +217,15 @@
                 const prayersRef = ref(database, 'prayers');
                 const snapshot = await get(prayersRef);
 
-                // Limpar dados locais
-                prayerData.sarah.clear();
-                prayerData.lucas.clear();
-                prayerComments.sarah = {};
-                prayerComments.lucas = {};
+                // Criar novos conjuntos temporários ao invés de limpar os existentes
+                const tempPrayerData = {
+                    sarah: new Set(),
+                    lucas: new Set()
+                };
+                const tempPrayerComments = {
+                    sarah: {},
+                    lucas: {}
+                };
 
                 if (snapshot.exists()) {
                     const prayers = snapshot.val();
@@ -232,14 +236,18 @@
                         const dateStr = new Date(data.timestamp).toDateString();
 
                         if (person === 'sarah' || person === 'lucas') {
-                            prayerData[person].add(dateStr);
+                            tempPrayerData[person].add(dateStr);
 
                             if (data.comment && data.comment.trim()) {
-                                prayerComments[person][dateStr] = data.comment;
+                                tempPrayerComments[person][dateStr] = data.comment;
                             }
                         }
                     });
                 }
+
+                // Só substitui os dados depois de carregar tudo
+                prayerData = tempPrayerData;
+                prayerComments = tempPrayerComments;
 
                 console.log('Orações carregadas do Firebase');
                 return true;
@@ -251,7 +259,6 @@
                 hideLoadingIndicator();
             }
         }
-
         // Função para configurar listener em tempo real (opcional)
         function setupRealtimeListener() {
             const prayersRef = ref(database, 'prayers');
@@ -357,7 +364,7 @@
             }
         }
 
-    
+
         // Substituir a função loadNewVerse() existente:
         async function loadNewVerse() {
             showVerseLoading();
@@ -634,13 +641,13 @@
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
 
-          /*   const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            dayHeaders.forEach(day => {
-                const dayHeader = document.createElement('div');
-                dayHeader.className = 'day-header';
-                dayHeader.textContent = day;
-                grid.appendChild(dayHeader);
-            }); */
+            /*   const dayHeaders = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+              dayHeaders.forEach(day => {
+                  const dayHeader = document.createElement('div');
+                  dayHeader.className = 'day-header';
+                  dayHeader.textContent = day;
+                  grid.appendChild(dayHeader);
+              }); */
 
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
