@@ -246,8 +246,17 @@
                 }
 
                 // Só substitui os dados depois de carregar tudo
-                prayerData = tempPrayerData;
-                prayerComments = tempPrayerComments;
+                Object.keys(tempPrayerData).forEach(person => {
+                    tempPrayerData[person].forEach(date => {
+                        prayerData[person].add(date);
+                    });
+                });
+
+                Object.keys(tempPrayerComments).forEach(person => {
+                    Object.keys(tempPrayerComments[person]).forEach(date => {
+                        prayerComments[person][date] = tempPrayerComments[person][date];
+                    });
+                });
 
                 console.log('Orações carregadas do Firebase');
                 return true;
@@ -260,21 +269,7 @@
             }
         }
         // Função para configurar listener em tempo real (opcional)
-        function setupRealtimeListener() {
-            const prayersRef = ref(database, 'prayers');
-
-            onValue(prayersRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    console.log('Dados atualizados em tempo real');
-                    // Recarregar dados quando houver mudanças
-                    loadPrayersFromDatabase().then(() => {
-                        updateCalendar();
-                        updateStats();
-                        checkTodayPrayers();
-                    });
-                }
-            });
-        }
+       
 
         // Mostrar indicador de carregamento
         function showLoadingIndicator() {
@@ -550,6 +545,7 @@
 
                 if (success) {
                     // Atualizar cache local
+
                     prayerData[currentPerson].add(todayStr);
 
                     if (comment) {
